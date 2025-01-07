@@ -1,0 +1,40 @@
+FROM php:fpm
+
+
+
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    vim
+
+RUN apt-get update
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+# Install PHP Extensions
+
+RUN docker-php-ext-install pdo pdo_mysql
+
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
+
+# Set Working Directory
+WORKDIR /var/www/html
+
+
+# Copy existing application directory contents
+COPY ./app /var/www/html
+
+# Create a new user for laravel application
+RUN addgroup --gid 1000 laravel
+RUN adduser --ingroup laravel --shell /bin/sh laravel
+USER laravel
